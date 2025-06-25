@@ -1,5 +1,6 @@
+wheel
 streamlit
 pandas
-matplotlib.pyplot
+matplotlib
 seaborn
 wordcloud
