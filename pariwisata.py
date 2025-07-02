@@ -108,6 +108,31 @@ else:
         ax2.axis('off')
         st.pyplot(fig2)
 
-    # Gabungan Tabel Data
-    st.subheader("Gabungan Tabel Review")
-    st.dataframe(combined_df[['sumber', 'text', 'sentiment_score', 'sentiment']])
+    # Gabungan Tabel Data Interaktif
+st.subheader("📋 Gabungan Tabel Review (Filter & Cari)")
+
+# Filter interaktif
+with st.expander("🔎 Filter Data Review"):
+    sumber_filter = st.multiselect(
+        "Pilih Sumber Review",
+        options=combined_df['sumber'].unique(),
+        default=combined_df['sumber'].unique()
+    )
+
+    sentiment_filter = st.multiselect(
+        "Pilih Sentimen",
+        options=['Positif', 'Netral', 'Negatif'],
+        default=['Positif', 'Netral', 'Negatif']
+    )
+
+    keyword = st.text_input("Cari Kata Kunci dalam Review", "")
+
+# Terapkan filter
+filtered_df = combined_df[
+    combined_df['sumber'].isin(sumber_filter) &
+    combined_df['sentiment'].isin(sentiment_filter) &
+    combined_df['text'].str.lower().str.contains(keyword.lower())
+]
+
+# Tampilkan tabel
+st.dataframe(filtered_df[['sumber', 'text', 'sentiment_score', 'sentiment']], use_container_width=True)
