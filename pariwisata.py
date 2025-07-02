@@ -6,7 +6,7 @@ from wordcloud import WordCloud
 
 # Load data
 df_gmaps = pd.read_csv("hasil_analisis_review_goa_gong.csv")
-df_yt = pd.read_csv("hasil_analisis_youtube.csv")
+df_yt = pd.read_csv("hasil_analisis_youtube_goa.csv")
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Dashboard Analisis Wisata", layout="wide")
