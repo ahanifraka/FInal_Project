@@ -71,68 +71,72 @@ else:
 
     df_gmaps['sumber'] = 'Google Maps'
     df_yt['sumber'] = 'YouTube'
-
     combined_df = pd.concat([df_gmaps, df_yt], ignore_index=True)
 
-    # Jumlah Review per Sumber
+    # Grafik Jumlah Review per Sumber
     st.subheader("Jumlah Review per Sumber")
     fig, ax = plt.subplots()
     sns.countplot(data=combined_df, x='sumber', ax=ax)
     st.pyplot(fig)
 
-    # Distribusi Sentimen per Sumber
+    # Grafik Distribusi Sentimen per Sumber
     st.subheader("Distribusi Sentimen per Sumber")
     fig, ax = plt.subplots(figsize=(8,5))
     sns.countplot(data=combined_df, x='sentiment', hue='sumber', order=['Positif', 'Netral', 'Negatif'], ax=ax)
     st.pyplot(fig)
 
-    # WordCloud per Sumber
+    # WordCloud Perbandingan
     st.subheader("WordCloud Review Google Maps vs YouTube")
     col1, col2 = st.columns(2)
 
     with col1:
         st.write("**Google Maps**")
         text_col = 'cleaned_review' if 'cleaned_review' in df_gmaps.columns else 'cleaned_text'
-        wordcloud1 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_gmaps[text_col].dropna()))
-        fig1, ax1 = plt.subplots()
-        ax1.imshow(wordcloud1, interpolation='bilinear')
-        ax1.axis('off')
-        st.pyplot(fig1)
+        if text_col and not df_gmaps[text_col].dropna().empty:
+            wordcloud1 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_gmaps[text_col].dropna()))
+            fig1, ax1 = plt.subplots()
+            ax1.imshow(wordcloud1, interpolation='bilinear')
+            ax1.axis('off')
+            st.pyplot(fig1)
+        else:
+            st.info("Tidak ada data teks untuk WordCloud.")
 
     with col2:
         st.write("**YouTube**")
         text_col = 'cleaned_review' if 'cleaned_review' in df_yt.columns else 'cleaned_text'
-        wordcloud2 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_yt[text_col].dropna()))
-        fig2, ax2 = plt.subplots()
-        ax2.imshow(wordcloud2, interpolation='bilinear')
-        ax2.axis('off')
-        st.pyplot(fig2)
+        if text_col and not df_yt[text_col].dropna().empty:
+            wordcloud2 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_yt[text_col].dropna()))
+            fig2, ax2 = plt.subplots()
+            ax2.imshow(wordcloud2, interpolation='bilinear')
+            ax2.axis('off')
+            st.pyplot(fig2)
+        else:
+            st.info("Tidak ada data teks untuk WordCloud.")
 
-    # Gabungan Tabel Data Interaktif
-st.subheader("📋 Gabungan Tabel Review (Filter & Cari)")
+    # TABEL DENGAN FILTER – HANYA DI HALAMAN INI
+    st.subheader("📋 Gabungan Tabel Review (Dengan Filter)")
 
-# Filter interaktif
-with st.expander("🔎 Filter Data Review"):
-    sumber_filter = st.multiselect(
-        "Pilih Sumber Review",
-        options=combined_df['sumber'].unique(),
-        default=combined_df['sumber'].unique()
-    )
+    with st.expander("🔎 Filter Review"):
+        sumber_filter = st.multiselect(
+            "Filter berdasarkan Sumber",
+            options=combined_df['sumber'].unique(),
+            default=combined_df['sumber'].unique()
+        )
 
-    sentiment_filter = st.multiselect(
-        "Pilih Sentimen",
-        options=['Positif', 'Netral', 'Negatif'],
-        default=['Positif', 'Netral', 'Negatif']
-    )
+        sentiment_filter = st.multiselect(
+            "Filter berdasarkan Sentimen",
+            options=['Positif', 'Netral', 'Negatif'],
+            default=['Positif', 'Netral', 'Negatif']
+        )
 
-    keyword = st.text_input("Cari Kata Kunci dalam Review", "")
+        keyword = st.text_input("Cari kata kunci dalam review")
 
-# Terapkan filter
-filtered_df = combined_df[
-    combined_df['sumber'].isin(sumber_filter) &
-    combined_df['sentiment'].isin(sentiment_filter) &
-    combined_df['text'].str.lower().str.contains(keyword.lower())
-]
+    # Terapkan filter
+    filtered_df = combined_df[
+        combined_df['sumber'].isin(sumber_filter) &
+        combined_df['sentiment'].isin(sentiment_filter) &
+        combined_df['text'].str.lower().str.contains(keyword.lower())
+    ]
 
-# Tampilkan tabel
-st.dataframe(filtered_df[['sumber', 'text', 'sentiment_score', 'sentiment']], use_container_width=True)
+    st.dataframe(filtered_df[['sumber', 'text', 'sentiment_score', 'sentiment']], use_container_width=True)
+
