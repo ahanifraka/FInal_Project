@@ -42,7 +42,7 @@ if tab == "Google Maps Kaggle":
 
 # Halaman YouTube
 elif tab == "Review Youtube":
-    st.header("🎥 Review Youtube")
+    st.header("🎥 Review Youtube (Goa Gong)")
     data = df_yt.copy()
     col1, col2, col3 = st.columns(3)
     col1.metric("Jumlah Review", len(data))
