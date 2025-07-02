@@ -13,7 +13,7 @@ st.set_page_config(page_title="Dashboard Analisis Wisata", layout="wide")
 st.title("📊 Dashboard Analisis Review Wisatawan")
 
 # Sidebar Tab
-tab = st.sidebar.radio("Pilih Halaman", ["Google Maps Kaggle", "Review Youtube", "Perbandingan Sumber Review"])
+tab = st.sidebar.radio("Pilih Halaman", ["Google Maps Kaggle", "Review Youtube", "Perbandingan Sumber Review", "Kesimpulan"])
 
 # Halaman Google Maps
 if tab == "Google Maps Kaggle":
@@ -64,6 +64,51 @@ elif tab == "Review Youtube":
 
     st.subheader("Tabel Review / Komentar")
     st.dataframe(data[['text', 'sentiment_score', 'sentiment']])
+
+elif tab == "Kesimpulan":
+    st.header("📝 Kesimpulan Analisis Review Goa Gong")
+
+    # Tambahkan kolom sumber jika belum ada
+    df_gmaps['sumber'] = 'Google Maps'
+    df_yt['sumber'] = 'YouTube'
+    combined_df = pd.concat([df_gmaps, df_yt], ignore_index=True)
+
+    # Statistik total
+    total_review = combined_df.shape[0]
+    total_maps = df_gmaps.shape[0]
+    total_yt = df_yt.shape[0]
+
+    # Rata-rata skor sentimen
+    avg_maps = df_gmaps['sentiment_score'].mean()
+    avg_yt = df_yt['sentiment_score'].mean()
+
+    # Persentase positif
+    pos_maps = (df_gmaps[df_gmaps['sentiment'] == 'Positif'].shape[0]) / total_maps * 100
+    pos_yt = (df_yt[df_yt['sentiment'] == 'Positif'].shape[0]) / total_yt * 100
+
+    # Layout metrik ringkas
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Review", total_review)
+    col2.metric("Google Maps Review", total_maps)
+    col3.metric("YouTube Review", total_yt)
+
+    col4, col5 = st.columns(2)
+    col4.metric("Rata-rata Sentimen Google Maps", f"{avg_maps:.2f}")
+    col5.metric("Rata-rata Sentimen YouTube", f"{avg_yt:.2f}")
+
+    col6, col7 = st.columns(2)
+    col6.metric("Persentase Positif Google Maps", f"{pos_maps:.1f}%")
+    col7.metric("Persentase Positif YouTube", f"{pos_yt:.1f}%")
+
+    # Narasi kesimpulan
+    st.subheader("📌 Ringkasan Analisis")
+    st.markdown(f"""
+    - Google Maps memiliki total **{total_maps}** review, sedangkan YouTube memiliki **{total_yt}** komentar.
+    - Rata-rata skor sentimen dari review Google Maps adalah **{avg_maps:.2f}**, sedangkan YouTube adalah **{avg_yt:.2f}**.
+    - Persentase review **positif** di Google Maps lebih tinggi sebesar **{pos_maps:.1f}%**, dibandingkan dengan YouTube yang sebesar **{pos_yt:.1f}%**.
+    - Secara umum, **Google Maps cenderung memiliki ulasan yang lebih positif** dibandingkan YouTube.
+    
+    💡 **Kesimpulan Analisis**: Meskipun kedua sumber memberikan insight penting, review dari Google Maps tampak lebih positif secara umum, sedangkan YouTube lebih bervariasi dan berisi kritik langsung dari visualisasi video.""")
 
 # Halaman Perbandingan
 else:
