@@ -47,10 +47,11 @@ if tab == "Google Maps Kaggle":
     data = df_gmaps.copy()
     data = filter_data(data)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Jumlah Review", len(data))
     col2.metric("Review Positif", data[data['sentiment'] == 'Positif'].shape[0])
-    col3.metric("Review Negatif", data[data['sentiment'] == 'Negatif'].shape[0])
+    col3.metric("Review Netral", data[data['sentiment'] == 'Netral'].shape[0])
+    col4.metric("Review Negatif", data[data['sentiment'] == 'Negatif'].shape[0])
 
     st.subheader("Distribusi Sentimen")
     fig, ax = plt.subplots()
@@ -74,10 +75,11 @@ elif tab == "Review Youtube":
     data = df_yt.copy()
     data = filter_data(data)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Jumlah Review", len(data))
     col2.metric("Review Positif", data[data['sentiment'] == 'Positif'].shape[0])
-    col3.metric("Review Negatif", data[data['sentiment'] == 'Negatif'].shape[0])
+    col3.metric("Review Netral", data[data['sentiment'] == 'Netral'].shape[0])
+    col4.metric("Review Negatif", data[data['sentiment'] == 'Negatif'].shape[0])
 
     st.subheader("Distribusi Sentimen")
     fig, ax = plt.subplots()
