@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from wordcloud import WordCloud
 
 # Load data
 df_gmaps = pd.read_csv("hasil_analisis_review_goa_gong.csv")
@@ -26,8 +25,12 @@ def filter_data(data):
         if keyword:
             data = data[data['text'].str.lower().str.contains(keyword.lower())]
 
-        min_len = int(data['text'].str.len().min())
-        max_len = int(data['text'].str.len().max())
+        if not data.empty:
+            min_len = int(data['text'].str.len().min())
+            max_len = int(data['text'].str.len().max())
+        else:
+            min_len, max_len = 0, 1
+
         panjang = st.slider(
             "Filter berdasarkan panjang komentar",
             min_value=min_len,
@@ -35,7 +38,7 @@ def filter_data(data):
             value=(min_len, max_len)
         )
         data = data[data['text'].str.len().between(panjang[0], panjang[1])]
-        
+
     return data
 
 # Sidebar Tab
@@ -57,14 +60,6 @@ if tab == "Google Maps Kaggle":
     sns.countplot(data=data, x='sentiment', order=['Positif', 'Netral', 'Negatif'], ax=ax)
     st.pyplot(fig)
 
-    st.subheader("WordCloud Review")
-    text_col = 'cleaned_review' if 'cleaned_review' in data.columns else 'cleaned_text'
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(data[text_col].dropna()))
-    fig2, ax2 = plt.subplots()
-    ax2.imshow(wordcloud, interpolation='bilinear')
-    ax2.axis('off')
-    st.pyplot(fig2)
-
     st.subheader("Tabel Review / Komentar")
     st.dataframe(data[['text', 'sentiment_score', 'sentiment']], use_container_width=True)
 
@@ -83,14 +78,6 @@ elif tab == "Review Youtube":
     fig, ax = plt.subplots()
     sns.countplot(data=data, x='sentiment', order=['Positif', 'Netral', 'Negatif'], ax=ax)
     st.pyplot(fig)
-
-    st.subheader("WordCloud Review")
-    text_col = 'cleaned_review' if 'cleaned_review' in data.columns else 'cleaned_text'
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(data[text_col].dropna()))
-    fig2, ax2 = plt.subplots()
-    ax2.imshow(wordcloud, interpolation='bilinear')
-    ax2.axis('off')
-    st.pyplot(fig2)
 
     st.subheader("Tabel Review / Komentar")
     st.dataframe(data[['text', 'sentiment_score', 'sentiment']], use_container_width=True)
@@ -153,33 +140,6 @@ else:
     sns.countplot(data=combined_df, x='sentiment', hue='sumber', order=['Positif', 'Netral', 'Negatif'], ax=ax)
     st.pyplot(fig)
 
-    st.subheader("WordCloud Review Google Maps vs YouTube")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.write("**Google Maps**")
-        text_col = 'cleaned_review' if 'cleaned_review' in df_gmaps.columns else 'cleaned_text'
-        if text_col and not df_gmaps[text_col].dropna().empty:
-            wordcloud1 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_gmaps[text_col].dropna()))
-            fig1, ax1 = plt.subplots()
-            ax1.imshow(wordcloud1, interpolation='bilinear')
-            ax1.axis('off')
-            st.pyplot(fig1)
-        else:
-            st.info("Tidak ada data teks untuk WordCloud.")
-
-    with col2:
-        st.write("**YouTube**")
-        text_col = 'cleaned_review' if 'cleaned_review' in df_yt.columns else 'cleaned_text'
-        if text_col and not df_yt[text_col].dropna().empty:
-            wordcloud2 = WordCloud(width=400, height=300, background_color='white').generate(' '.join(df_yt[text_col].dropna()))
-            fig2, ax2 = plt.subplots()
-            ax2.imshow(wordcloud2, interpolation='bilinear')
-            ax2.axis('off')
-            st.pyplot(fig2)
-        else:
-            st.info("Tidak ada data teks untuk WordCloud.")
-
     st.subheader("📋 Gabungan Tabel Review (Dengan Filter)")
 
     with st.expander("🔎 Filter Review"):
@@ -197,8 +157,12 @@ else:
 
         keyword = st.text_input("Cari kata kunci dalam review")
 
-        min_len = int(combined_df['text'].str.len().min())
-        max_len = int(combined_df['text'].str.len().max())
+        if not combined_df.empty:
+            min_len = int(combined_df['text'].str.len().min())
+            max_len = int(combined_df['text'].str.len().max())
+        else:
+            min_len, max_len = 0, 1
+
         panjang = st.slider(
             "Filter berdasarkan panjang komentar",
             min_value=min_len,
