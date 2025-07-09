@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from wordcloud import WordCloud
 
 # Load data
 df_gmaps = pd.read_csv("hasil_analisis_review_goa_gong.csv")
@@ -9,11 +10,11 @@ df_yt = pd.read_csv("hasil_analisis_youtube_goa.csv")
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Dashboard Analisis Wisata", layout="wide")
-st.title("📊 Dashboard Analisis Review Wisatawan")
+st.title("\U0001F4CA Dashboard Analisis Review Wisatawan")
 
 # Fungsi filter data
 def filter_data(data):
-    with st.expander("🔎 Filter Review"):
+    with st.expander("\U0001F50E Filter Review"):
         sentiment_filter = st.multiselect(
             "Pilih jenis sentimen:",
             options=['Positif', 'Netral', 'Negatif'],
@@ -25,12 +26,8 @@ def filter_data(data):
         if keyword:
             data = data[data['text'].str.lower().str.contains(keyword.lower())]
 
-        if not data.empty:
-            min_len = int(data['text'].str.len().min())
-            max_len = int(data['text'].str.len().max())
-        else:
-            min_len, max_len = 0, 1
-
+        min_len = int(data['text'].str.len().min())
+        max_len = int(data['text'].str.len().max())
         panjang = st.slider(
             "Filter berdasarkan panjang komentar",
             min_value=min_len,
@@ -46,7 +43,7 @@ tab = st.sidebar.radio("Pilih Halaman", ["Google Maps Kaggle", "Review Youtube",
 
 # Google Maps Tab
 if tab == "Google Maps Kaggle":
-    st.header("📍 Review Google Maps (Goa Gong)")
+    st.header("\U0001F4CD Review Google Maps (Goa Gong)")
     data = df_gmaps.copy()
     data = filter_data(data)
 
@@ -63,9 +60,17 @@ if tab == "Google Maps Kaggle":
     st.subheader("Tabel Review / Komentar")
     st.dataframe(data[['text', 'sentiment_score', 'sentiment']], use_container_width=True)
 
+    st.subheader("\U0001F4DD Kesimpulan Review Google Maps")
+    st.markdown("""
+    Review yang berasal dari Google Maps cenderung menunjukkan **kesan positif** dari para pengunjung yang sudah mengunjungi Goa Gong secara langsung.  
+    Banyak pengguna memberikan penilaian yang baik terhadap keindahan alam, kebersihan, dan pengelolaan tempat wisata.  
+    Namun, terdapat juga beberapa komentar negatif terkait **aksesibilitas**, **kebisingan**, atau **biaya masuk**.  
+    Secara umum, review di Google Maps merepresentasikan **pengalaman langsung wisatawan** secara nyata.
+    """)
+
 # YouTube Tab
 elif tab == "Review Youtube":
-    st.header("🎥 Review YouTube (Goa Gong)")
+    st.header("\U0001F3A5 Review YouTube (Goa Gong)")
     data = df_yt.copy()
     data = filter_data(data)
 
@@ -82,9 +87,17 @@ elif tab == "Review Youtube":
     st.subheader("Tabel Review / Komentar")
     st.dataframe(data[['text', 'sentiment_score', 'sentiment']], use_container_width=True)
 
+    st.subheader("\U0001F4DD Kesimpulan Review YouTube")
+    st.markdown("""
+    Komentar dari YouTube memperlihatkan **keragaman opini** masyarakat.  
+    Sebagian komentar bersifat positif karena **tampilan video yang menarik** dan **konten visual yang informatif**.  
+    Namun, komentar negatif juga muncul, terutama yang berkaitan dengan **kualitas produksi video**, **nada suara**, atau **pendapat subjektif** terhadap tempat wisata.  
+    Hal ini menunjukkan bahwa review dari YouTube lebih mencerminkan **persepsi digital masyarakat**, bukan hanya pengalaman kunjungan.
+    """)
+
 # Kesimpulan Tab
 elif tab == "Kesimpulan":
-    st.header("📝 Kesimpulan Analisis Review Goa Gong")
+    st.header("\U0001F4DD Kesimpulan Analisis Review Goa Gong")
 
     df_gmaps['sumber'] = 'Google Maps'
     df_yt['sumber'] = 'YouTube'
@@ -113,18 +126,22 @@ elif tab == "Kesimpulan":
     col6.metric("Persentase Positif Google Maps", f"{pos_maps:.1f}%")
     col7.metric("Persentase Positif YouTube", f"{pos_yt:.1f}%")
 
-    st.subheader("📌 Ringkasan Analisis")
-    st.markdown(f"""
-    - Google Maps memiliki total **{total_maps}** review, sedangkan YouTube memiliki **{total_yt}** komentar.
-    - Rata-rata skor sentimen dari review Google Maps adalah **{avg_maps:.2f}**, sedangkan YouTube adalah **{avg_yt:.2f}**.
-    - Persentase review **positif** di Google Maps lebih tinggi sebesar **{pos_maps:.1f}%**, dibandingkan dengan YouTube yang sebesar **{pos_yt:.1f}%**.
-    - Secara umum, **Google Maps cenderung memiliki ulasan yang lebih positif** dibandingkan YouTube.
+    st.subheader("\U0001F9FE Kesimpulan Gabungan Analisis")
+    st.markdown("""
+    Berdasarkan hasil analisis dari dua sumber data (Google Maps dan YouTube), dapat disimpulkan bahwa:
 
-    💡 **Kesimpulan**: Google Maps memberikan citra wisata lebih positif, sedangkan YouTube lebih banyak berisi variasi opini dan kritik.""")
+    - **Google Maps** mencerminkan **pengalaman langsung dari pengunjung** yang sudah datang ke Goa Gong. Sebagian besar ulasan bersifat positif dan lebih menekankan pada **pengalaman fisik** seperti kebersihan, keindahan, dan suasana wisata.
+    - **YouTube** mencerminkan **opini masyarakat digital** yang melihat destinasi dari sisi visual dan narasi video. Opini lebih bervariasi, karena pengunjung bisa saja tidak pernah datang ke lokasi namun memberikan opini berdasarkan tayangan.
+
+    ✨ **Kesimpulan Utama:**  
+    Kombinasi review dari kedua sumber memberikan wawasan yang **lebih menyeluruh**:  
+    - **Google Maps** unggul dalam mewakili **kepuasan langsung pengunjung**,  
+    - **YouTube** mencerminkan **ekspektasi dan persepsi masyarakat luas** terhadap destinasi wisata Goa Gong.
+    """)
 
 # Perbandingan Tab
 else:
-    st.header("📊 Perbandingan Sumber Review: Google Maps vs YouTube")
+    st.header("\U0001F4CA Perbandingan Sumber Review: Google Maps vs YouTube")
 
     df_gmaps['sumber'] = 'Google Maps'
     df_yt['sumber'] = 'YouTube'
@@ -140,9 +157,9 @@ else:
     sns.countplot(data=combined_df, x='sentiment', hue='sumber', order=['Positif', 'Netral', 'Negatif'], ax=ax)
     st.pyplot(fig)
 
-    st.subheader("📋 Gabungan Tabel Review (Dengan Filter)")
+    st.subheader("\U0001F4CB Gabungan Tabel Review (Dengan Filter)")
 
-    with st.expander("🔎 Filter Review"):
+    with st.expander("\U0001F50E Filter Review"):
         sumber_filter = st.multiselect(
             "Filter berdasarkan Sumber",
             options=combined_df['sumber'].unique(),
@@ -157,12 +174,8 @@ else:
 
         keyword = st.text_input("Cari kata kunci dalam review")
 
-        if not combined_df.empty:
-            min_len = int(combined_df['text'].str.len().min())
-            max_len = int(combined_df['text'].str.len().max())
-        else:
-            min_len, max_len = 0, 1
-
+        min_len = int(combined_df['text'].str.len().min())
+        max_len = int(combined_df['text'].str.len().max())
         panjang = st.slider(
             "Filter berdasarkan panjang komentar",
             min_value=min_len,
